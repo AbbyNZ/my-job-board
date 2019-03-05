@@ -1,31 +1,37 @@
 // JavaScript Document
-const jobboard = "https://codepen.io/jobs.json";
-let jobsData;
+const jobboard = 'https://codepen.io/jobs.json';
+const $jobContainer = $('#job');
+const $searchBtn = $('#search-jobs');
 
-const searchBtn = $('#search-btn').on("click",getJobs);
+$searchBtn.on("click", getJobs);
 
 var currentTitle = '', currentCompany = '', currentDescription;
 
 function getJobs() {
-	return $.ajax({
-		headers: {
-      Accept: "application/json"
-    },
-    url:jobboard,
-	success: function(jsonJobs){
-		jobsData = JSON.parse(jsonJobs);
-		console.log(jsonJobs);
-	}
-  });
+	$jobContainer.html('<div class="loader" />');
+	
+	$.getJSON(jobboard)
+    .done(data => {
+      const jobs = data.jobs;
+      const job = jobs[Math.floor(Math.random() * jobs.length)];
+      const jobHtml = `
+        <h2>
+          <a href="${job.jobboard}" target="_blank">${job.title}</a>
+        </h2>
+        <p>at ${job.company_name}</p>
+        <p>
+          <a href="${job.jobboard}"
+             target="_blank"
+             title="Click to learn more about being a ${job.title} at ${job.company_name}"
+             class="btn btn-sm">Learn More
+          </a>
+        </p>
+      `;
+		
+		 $jobContainer.html(jobHtml);
+      $searchBtn.text('Find another job');
+	})
+		.fail(() => {
+			jobContainer.html(`<p>A job could not be fetched at this time.</p>`);
+		});
 }
-
-function getJobByPosition() {
-	$('.results').text(currentTitle);
-	$('#job').html();
-}
-
-const searchInput = document.querySelector('.search');
-const suggestions = document.querySelector('.suggestions');
-
-searchInput.addEventListener('change', displayMatches);
-searchInput.addEventListener('keyup', displayMatches);
